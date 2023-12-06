@@ -1,13 +1,8 @@
 import React from "react";
 import Web3 from "web3";
-import { useState } from "react";
 
 const ConnectWalletButton = ({ setAddress, mode = "login" }) => {
-  const [loading, setLoading] = useState(false);
-
   const onPressConnect = async () => {
-    setLoading(true);
-
     try {
       if (window?.ethereum?.isMetaMask) {
         // Desktop browser
@@ -28,12 +23,10 @@ const ConnectWalletButton = ({ setAddress, mode = "login" }) => {
 
         const account = Web3.utils.toChecksumAddress(accounts[0]);
         setAddress(account);
-      }
+      } else window.alert("Please install MetaMask to use this dApp!");
     } catch (error) {
       console.log(error);
     }
-
-    setLoading(false);
   };
   const onPressLogout = async () => {
     setAddress("");
@@ -41,7 +34,7 @@ const ConnectWalletButton = ({ setAddress, mode = "login" }) => {
   return (
     <div>
       <button onClick={mode === "login" ? onPressConnect : onPressLogout}>
-        {mode === "login" ? "Login Using Meta Mask" : "Logout"}
+        {mode === "login" ? "Login Using MetaMask" : "Logout"}
       </button>
     </div>
   );

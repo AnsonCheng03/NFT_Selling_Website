@@ -4,6 +4,7 @@ import "./App.css";
 
 import ConnectWalletButton from "./components/ConnectWalletButton";
 import { NavBar } from "./components/NavBar";
+import { UploadImage } from "./components/UploadImage";
 
 const App = () => {
   const [address, setAddress] = useState("");
@@ -16,6 +17,7 @@ const App = () => {
             <ConnectWalletButton setAddress={setAddress} />
           </login>
           <NavBar address={address} setAddress={setAddress} />
+          <UploadImage />
         </main>
       }
     </div>

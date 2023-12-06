@@ -50,14 +50,27 @@
 .navBar button {
   background: #f44336;
   color: #fff;
-  border: 0;
   padding: 10px 20px;
   border-radius: 5px;
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   transition: 0.5s ease all;
+  border: 0;
 }
 
 .navBar button:hover {
   background: #ff5722;
+}
+
+.uploadButton {
+  display: inline-block;
+  border: 0;
+  margin: 20px;
+  background: #b3e5fc;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: 0.5s ease all;
 }
