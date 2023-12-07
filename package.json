@@ -10,6 +10,7 @@
   ],
   "scripts": {
     "build": "qwik build",
+    "install": "sudo yarn global add ganache truffle",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
     "build.types": "tsc --incremental --noEmit",
@@ -39,7 +40,9 @@
     "vite-tsconfig-paths": "^4.2.1"
   },
   "dependencies": {
+    "@openzeppelin/contracts": "^5.0.0",
     "axios": "^1.6.2",
+    "bigint-buffer": "^1.1.5",
     "sharp": "^0.33.0",
     "web3": "^4.3.0"
   }

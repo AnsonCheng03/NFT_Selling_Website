@@ -4,6 +4,7 @@ import { ConnectWalletButton } from "./components/ConnectWalletButton";
 import UploadImage from "./components/UploadImage";
 import { NavBar } from "./components/NavBar";
 import { ModeSelect } from "./components/ModeSelect";
+import { View } from "./components/ViewNFT";
 
 export default component$(() => {
   const account = useSignal("");
@@ -17,7 +18,7 @@ export default component$(() => {
         </login>
         <NavBar account={account} />
         <ModeSelect mode={mode} />
-        {mode.value === "create" ? <UploadImage /> : <div>Buy</div>}
+        {mode.value === "create" ? <UploadImage /> : <View account={account} />}
       </main>
     </div>
   );

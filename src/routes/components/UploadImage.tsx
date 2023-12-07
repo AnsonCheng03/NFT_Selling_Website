@@ -1,7 +1,9 @@
 import axios from "axios";
 import { $, component$, useSignal, noSerialize } from "@builder.io/qwik";
 import { server$ } from "@builder.io/qwik-city";
-// const FormData = require("form-data");
+import { spawn } from "child_process";
+import * as fs from "fs";
+import { contractCode } from "./contractCode";
 
 export default component$(() => {
   const inputFile = useSignal<any>();
@@ -25,6 +27,66 @@ export default component$(() => {
 
     files.value = [noSerialize(file), ...files.value];
   });
+
+  const generateContract = server$(
+    async (
+      numberOfImages: number = 0,
+      DateInSec: number = Date.now() / 1000
+    ) => {
+      const error = false;
+      // write contract code to file
+      fs.writeFile(
+        `contracts/ERC721Token${DateInSec}.sol`,
+        contractCode(numberOfImages, DateInSec),
+        (err) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+        }
+      );
+
+      console.log("contract code file created");
+
+      try {
+        await new Promise((resolve, reject) => {
+          const migrate = spawn("truffle", ["migrate"], {
+            cwd: process.cwd(),
+            shell: true,
+            detached: true,
+          });
+
+          migrate.stdout.on("data", (data) => {
+            console.log(`stdout: ${data}`);
+          });
+
+          migrate.on("close", (code) => {
+            if (code === 0) {
+              resolve("done");
+              migrate.unref();
+            } else {
+              console.log(`Process exited with code: ${code}`);
+              reject(`Process exited with code: ${code}`);
+            }
+          });
+        });
+      } catch (error) {
+        console.log("truffle migrate error", error);
+        throw error;
+      } finally {
+        // remove contract code file after compiling
+        await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+      }
+
+      console.log("contract deployed");
+
+      return `ERC721Token${DateInSec}`;
+    }
+  );
 
   const pinFileToIPFS = $(async (file: any) => {
     const formData = new FormData();
@@ -50,10 +112,10 @@ export default component$(() => {
         }
       );
       console.log(res.data);
-      window.alert("NFT Contract Created!");
+      return res.data.IpfsHash;
     } catch (error) {
       console.log(error);
-      window.alert("Error creating NFT Contract");
+      throw error;
     } finally {
       inputFile.value = null;
     }
@@ -90,17 +152,38 @@ export default component$(() => {
         >
           Upload NFT Image
         </button>
-        {files.value.length > 0 && (
+        {
+          // files.value.length > 0 &&
           <button
             class="submitButton"
-            onClick$={() => {
-              files.value.forEach((file: any) => pinFileToIPFS(file));
-              files.value = [];
+            onClick$={async () => {
+              try {
+                const currentTimeInSeconds = Math.floor(Date.now());
+                const contract: any = {
+                  name: "",
+                  images: [],
+                };
+                contract.name = await generateContract(
+                  files.value.length,
+                  currentTimeInSeconds
+                );
+                for (let i = 0; i < files.value.length; i++) {
+                  const ipfsID = await pinFileToIPFS(files.value[i]);
+                  contract.images.push(ipfsID);
+                  console.log(ipfsID);
+                }
+                files.value = [];
+                console.log(contract);
+                window.alert("NFT contract created");
+              } catch (error) {
+                console.log(error);
+                window.alert("Error creating NFT contract");
+              }
             }}
           >
             Create NFT Contract
           </button>
-        )}
+        }
       </div>
     </div>
   );
