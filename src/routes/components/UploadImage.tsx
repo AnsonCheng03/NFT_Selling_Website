@@ -6,7 +6,7 @@ import * as fs from "fs";
 import Web3 from "web3";
 import { contractCode } from "./contractCode";
 
-export default component$(({ account }: any) => {
+export default component$(({ account, mode }: any) => {
   const inputFile = useSignal<any>();
   const files = useSignal<any>([]);
   const handleFileChange = $((event: any) => {
@@ -174,8 +174,7 @@ export default component$(({ account }: any) => {
         >
           Upload NFT Image
         </button>
-        {
-          // files.value.length > 0 &&
+        {files.value.length > 0 && (
           <button
             class="submitButton"
             onClick$={async () => {
@@ -199,6 +198,8 @@ export default component$(({ account }: any) => {
                 await saveContractToJSON(contract);
 
                 window.alert("NFT contract created");
+
+                mode.value = "view";
               } catch (error) {
                 console.log(error);
                 window.alert("Error creating NFT contract");
@@ -207,7 +208,7 @@ export default component$(({ account }: any) => {
           >
             Create NFT Contract
           </button>
-        }
+        )}
       </div>
     </div>
   );
