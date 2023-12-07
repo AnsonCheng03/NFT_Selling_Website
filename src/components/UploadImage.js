@@ -4,10 +4,11 @@ const FormData = require("form-data");
 
 export const UploadImage = () => {
   const inputFile = useRef();
+  const [files, setFiles] = useState([]);
+  const handleFileChange = (event) => {
+    const file = event.target.files[0];
 
-  const pinFileToIPFS = async (file) => {
-    const formData = new FormData();
-    formData.append("file", file);
+    if (!file) return;
 
     // check if file is an image
     if (!file.type.match(/image.*/)) {
@@ -20,6 +21,13 @@ export const UploadImage = () => {
       window.alert("File size must be less than 1MB");
       return;
     }
+
+    setFiles([file, ...files]);
+  };
+
+  const pinFileToIPFS = async (file) => {
+    const formData = new FormData();
+    formData.append("file", file);
 
     const pinataMetadata = JSON.stringify({ name: file.name });
     formData.append("pinataMetadata", pinataMetadata);
@@ -48,28 +56,47 @@ export const UploadImage = () => {
     }
   };
 
-  const handleFileChange = (event) => {
-    const file = event.target.files[0];
-    if (file) {
-      pinFileToIPFS(file);
-    }
-  };
-
   return (
     <div className="uploadImage">
-      <input
-        type="file"
-        id="file"
-        ref={inputFile}
-        onChange={handleFileChange}
-        style={{ display: "none" }}
-      />
-      <button
-        className="uploadButton"
-        onClick={() => inputFile.current.click()}
-      >
-        Upload NFT Image
-      </button>
+      <p>
+        You are going to create a NFT contract
+        {files.length === 0
+          ? ". Please Upload:"
+          : ` with ${files.length} images.`}
+      </p>
+      <div className="uploadImageContainer">
+        {files.map((file, index) => (
+          <div className="uploadImagePreview" key={index}>
+            <img src={URL.createObjectURL(file)} alt="" />
+            <p>{file.name}</p>
+          </div>
+        ))}
+        <input
+          type="file"
+          id="file"
+          ref={inputFile}
+          accept="image/*"
+          onChange={handleFileChange}
+          style={{ display: "none" }}
+        />
+        <button
+          className="uploadButton"
+          onClick={() => inputFile.current.click()}
+        >
+          Upload NFT Image
+        </button>
+        {files.length > 0 && (
+          <button
+            className="submitButton"
+            onClick={() => {
+              // files.forEach((file) => pinFileToIPFS(file));
+              // setFiles([]);
+            }}
+          >
+            Create NFT Contract
+          </button>
+        )}
+      </div>
     </div>
   );
 };
