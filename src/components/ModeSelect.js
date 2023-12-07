@@ -7,7 +7,7 @@ export const ModeSelect = ({ mode, setMode }) => {
         }
         onClick={() => setMode("create")}
       >
-        Create
+        Create NFTs
       </button>
 
       <button
@@ -16,7 +16,7 @@ export const ModeSelect = ({ mode, setMode }) => {
         }
         onClick={() => setMode("buy")}
       >
-        Buy
+        View NFTs
       </button>
     </div>
   );
