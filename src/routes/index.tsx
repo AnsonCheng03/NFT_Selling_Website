@@ -18,7 +18,11 @@ export default component$(() => {
         </login>
         <NavBar account={account} />
         <ModeSelect mode={mode} />
-        {mode.value === "create" ? <UploadImage /> : <View account={account} />}
+        {mode.value === "create" ? (
+          <UploadImage account={account} />
+        ) : (
+          <View account={account} />
+        )}
       </main>
     </div>
   );

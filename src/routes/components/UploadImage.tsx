@@ -3,9 +3,10 @@ import { $, component$, useSignal, noSerialize } from "@builder.io/qwik";
 import { server$ } from "@builder.io/qwik-city";
 import { spawn } from "child_process";
 import * as fs from "fs";
+import Web3 from "web3";
 import { contractCode } from "./contractCode";
 
-export default component$(() => {
+export default component$(({ account }: any) => {
   const inputFile = useSignal<any>();
   const files = useSignal<any>([]);
   const handleFileChange = $((event: any) => {
@@ -56,14 +57,14 @@ export default component$(() => {
             detached: true,
           });
 
-          migrate.stdout.on("data", (data) => {
-            console.log(`stdout: ${data}`);
-          });
+          // migrate.stdout.on("data", (data) => {
+          // console.log(`stdout: ${data}`);
+          // });
 
           migrate.on("close", (code) => {
             if (code === 0) {
-              resolve("done");
               migrate.unref();
+              resolve("done");
             } else {
               console.log(`Process exited with code: ${code}`);
               reject(`Process exited with code: ${code}`);
@@ -111,7 +112,7 @@ export default component$(() => {
           },
         }
       );
-      console.log(res.data);
+      // console.log(res.data);
       return res.data.IpfsHash;
     } catch (error) {
       console.log(error);
@@ -119,6 +120,27 @@ export default component$(() => {
     } finally {
       inputFile.value = null;
     }
+  });
+
+  const saveContractToJSON = server$((contract: any) => {
+    console.log("saveContractToJSON", contract);
+
+    const contracts: any = JSON.parse(
+      fs.readFileSync("src/contracts.json", "utf-8")
+    );
+
+    // Add new contract to contracts (key: account)
+    const address = Web3.utils.toChecksumAddress(account.value);
+    contracts[address] = contract;
+
+    // Write contracts to json file
+    fs.writeFile("src/contracts.json", JSON.stringify(contracts), (err) => {
+      if (err) {
+        console.log(err);
+        return;
+      }
+      console.log("contracts.json updated");
+    });
   });
 
   return (
@@ -173,7 +195,9 @@ export default component$(() => {
                   console.log(ipfsID);
                 }
                 files.value = [];
-                console.log(contract);
+
+                await saveContractToJSON(contract);
+
                 window.alert("NFT contract created");
               } catch (error) {
                 console.log(error);
