@@ -34,7 +34,6 @@ export default component$(({ account, mode }: any) => {
       numberOfImages: number = 0,
       DateInSec: number = Date.now() / 1000
     ) => {
-      const error = false;
       // write contract code to file
       fs.writeFile(
         `contracts/ERC721Token${DateInSec}.sol`,
@@ -131,7 +130,8 @@ export default component$(({ account, mode }: any) => {
 
     // Add new contract to contracts (key: account)
     const address = Web3.utils.toChecksumAddress(account.value);
-    contracts[address] = contract;
+    if (contracts[address]) contracts[address].push(contract);
+    else contracts[address] = [contract];
 
     // Write contracts to json file
     fs.writeFile("src/contracts.json", JSON.stringify(contracts), (err) => {

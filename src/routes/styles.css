@@ -66,7 +66,8 @@ body {
   background: #ff5722;
 }
 
-.uploadImage {
+.uploadImage,
+.viewNFT {
   margin: 0px 20px;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   height: calc(100vh - 180px);
@@ -134,4 +135,40 @@ body {
 .uploadImagePreview img {
   height: 100%;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+}
+
+.nft {
+  margin: 0px 20px;
+  border: 1px solid #000;
+  border-radius: 5px;
+  padding: 10px 20px;
+  overflow: auto;
+}
+
+.nft p {
+  margin: 10px 0;
+}
+
+.nftImages {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 20px;
+  padding: 10px;
+  margin: 20px 0;
+  border-radius: 5px;
+  background-color: #b3e5fc;
+}
+
+.mintButton {
+  display: inline-block;
+  border: 0;
+  margin: 10px 0;
+  background: #b3e5fc;
+  color: #000;
+  padding: 10px 20px;
+  border-radius: 5px;
+  cursor: pointer;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
+  transition: 0.5s ease all;
+  float: right;
 }
