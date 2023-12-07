@@ -172,3 +172,13 @@ body {
   transition: 0.5s ease all;
   float: right;
 }
+
+.nft img {
+  cursor: pointer;
+  transition: 0.5s ease all;
+  border-radius: 5px;
+}
+
+.nft img:hover {
+  transform: scale(1.1);
+}

@@ -5,6 +5,8 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import Web3 from "web3";
 import { contractCode } from "./contractCode";
+import { migrateCode } from "./migrateCode";
+import { truffleConfig } from "./truffleConfig";
 
 export default component$(({ account, mode }: any) => {
   const inputFile = useSignal<any>();
@@ -35,9 +37,32 @@ export default component$(({ account, mode }: any) => {
       DateInSec: number = Date.now() / 1000
     ) => {
       // write contract code to file
-      fs.writeFile(
+      await fs.writeFile(
         `contracts/ERC721Token${DateInSec}.sol`,
         contractCode(numberOfImages, DateInSec),
+        (err) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+        }
+      );
+
+      await fs.writeFile(
+        `migrations/2_ERC721Token${DateInSec}_migrations.js`,
+        migrateCode(DateInSec),
+        (err) => {
+          if (err) {
+            console.log(err);
+            return;
+          }
+        }
+      );
+
+      const address = Web3.utils.toChecksumAddress(account.value);
+      await fs.writeFile(
+        `truffle-config${DateInSec}.js`,
+        truffleConfig(address.toLowerCase()),
         (err) => {
           if (err) {
             console.log(err);
@@ -50,15 +75,27 @@ export default component$(({ account, mode }: any) => {
 
       try {
         await new Promise((resolve, reject) => {
-          const migrate = spawn("truffle", ["migrate"], {
-            cwd: process.cwd(),
-            shell: true,
-            detached: true,
-          });
+          // const migrate = spawn("truffle", ["migrate"], {
+          //  --network ganache
+          const migrate = spawn(
+            "truffle",
+            [
+              "migrate",
+              "--config",
+              `truffle-config${DateInSec}.js`,
+              "--network",
+              "develop",
+            ],
+            {
+              cwd: process.cwd(),
+              shell: true,
+              detached: true,
+            }
+          );
 
-          // migrate.stdout.on("data", (data) => {
-          // console.log(`stdout: ${data}`);
-          // });
+          migrate.stdout.on("data", (data) => {
+            console.log(`stdout: ${data}`);
+          });
 
           migrate.on("close", (code) => {
             if (code === 0) {
@@ -80,6 +117,19 @@ export default component$(({ account, mode }: any) => {
             console.log(err);
           }
         });
+        await fs.unlink(
+          `migrations/2_ERC721Token${DateInSec}_migrations.js`,
+          (err) => {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
+        // await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        // });
       }
 
       console.log("contract deployed");

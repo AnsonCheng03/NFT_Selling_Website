@@ -7,22 +7,6 @@ export const View = component$(({ account }: any) => {
   console.log(nftList);
   const address = Web3.utils.toChecksumAddress(account.value);
 
-  // const configuration;
-  // const networkID = Object.keys(configuration?.networks)[0];
-  // const contractAddress = (configuration as any)?.networks[networkID]?.address;
-  // const contractABI = configuration?.abi;
-  // const web3 = new Web3("http://127.0.0.1:8545");
-  // const contract = new web3.eth.Contract(contractABI, contractAddress);
-
-  // const RunMethod = async () => {
-  //   console.log(await (contract.methods as any).name().call());
-  //   console.log(
-  //     await (contract.methods as any).mint("123").send({ from: account })
-  //   );
-  // };
-
-  // RunMethod();
-
   return (
     <div class="viewNFT">
       <h1>My Contract</h1>
@@ -30,7 +14,14 @@ export const View = component$(({ account }: any) => {
         // get all NFTs of key is my address from contract
         nftList[address] &&
           nftList[address].map((nft: any) => {
-            return <ShowNFT nft={nft} owned={true} key={nft.name} />;
+            return (
+              <ShowNFT
+                nft={nft}
+                owned={true}
+                key={nft.name}
+                account={account}
+              />
+            );
           })
       }
       <h1>Other NFTs</h1>
@@ -40,9 +31,17 @@ export const View = component$(({ account }: any) => {
           if (key !== address) {
             return (
               <div key={key}>
-                <h2>{key}</h2>
+                {/* <h4>{key}</h4> */}
                 {nftList[key].map((nft: any) => {
-                  return <showNFT nft={nft} owned={false} key={nft.name} />;
+                  console.log(nft);
+                  return (
+                    <ShowNFT
+                      nft={nft}
+                      owned={false}
+                      key={nft.name}
+                      account={account}
+                    />
+                  );
                 })}
               </div>
             );
