@@ -1,10 +1,12 @@
 import axios from "axios";
-const FormData = require("form-data");
+import { $, component$, useSignal, noSerialize } from "@builder.io/qwik";
+import { server$ } from "@builder.io/qwik-city";
+// const FormData = require("form-data");
 
-export const UploadImage = () => {
-  const inputFile = useRef();
-  const [files, setFiles] = useState([]);
-  const handleFileChange = (event) => {
+export default component$(() => {
+  const inputFile = useSignal<any>();
+  const files = useSignal<any>([]);
+  const handleFileChange = $((event: any) => {
     const file = event.target.files[0];
 
     if (!file) return;
@@ -21,10 +23,10 @@ export const UploadImage = () => {
       return;
     }
 
-    setFiles([file, ...files]);
-  };
+    files.value = [noSerialize(file), ...files.value];
+  });
 
-  const pinFileToIPFS = async (file: any) => {
+  const pinFileToIPFS = $(async (file: any) => {
     const formData = new FormData();
     formData.append("file", file);
 
@@ -40,31 +42,33 @@ export const UploadImage = () => {
         "https://api.pinata.cloud/pinning/pinFileToIPFS",
         formData,
         {
-          maxBodyLength: "Infinity",
+          // maxBodyLength: "Infinity",
           headers: {
-            "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
-            Authorization: `Bearer ${process.env.REACT_APP_IPFSapiKey}`,
+            // "Content-Type": `multipart/form-data; boundary=${formData._boundary}`,
+            Authorization: `Bearer ${import.meta.env.PUBLIC_IPFSapiKey!}`,
           },
         }
       );
       console.log(res.data);
+      window.alert("NFT Contract Created!");
     } catch (error) {
       console.log(error);
+      window.alert("Error creating NFT Contract");
     } finally {
-      inputFile.current.value = null;
+      inputFile.value = null;
     }
-  };
+  });
 
   return (
     <div class="uploadImage">
       <p>
         You are going to create a NFT contract
-        {files.length === 0
+        {files.value.length === 0
           ? ". Please Upload:"
-          : ` with ${files.length} images.`}
+          : ` with ${files.value.length} images.`}
       </p>
       <div class="uploadImageContainer">
-        {files.map((file: any, index: any) => (
+        {files.value.map((file: any, index: any) => (
           <div class="uploadImagePreview" key={index}>
             <img src={URL.createObjectURL(file)} alt="" />
             <p>{file.name}</p>
@@ -78,15 +82,20 @@ export const UploadImage = () => {
           onChange$={handleFileChange}
           style={{ display: "none" }}
         />
-        <button class="uploadButton" onClick={() => inputFile.current.click()}>
+        <button
+          class="uploadButton"
+          onClick$={() => {
+            inputFile.value?.click();
+          }}
+        >
           Upload NFT Image
         </button>
-        {files.length > 0 && (
+        {files.value.length > 0 && (
           <button
             class="submitButton"
             onClick$={() => {
-              // files.forEach((file) => pinFileToIPFS(file));
-              // setFiles([]);
+              files.value.forEach((file: any) => pinFileToIPFS(file));
+              files.value = [];
             }}
           >
             Create NFT Contract
@@ -95,4 +104,4 @@ export const UploadImage = () => {
       </div>
     </div>
   );
-};
+});

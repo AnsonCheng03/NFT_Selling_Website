@@ -1,7 +1,7 @@
 import { component$, useSignal } from "@builder.io/qwik";
 import { type DocumentHead } from "@builder.io/qwik-city";
 import { ConnectWalletButton } from "./components/ConnectWalletButton";
-import { UploadImage } from "./components/UploadImage";
+import UploadImage from "./components/UploadImage";
 import { NavBar } from "./components/NavBar";
 import { ModeSelect } from "./components/ModeSelect";
 
@@ -17,7 +17,7 @@ export default component$(() => {
         </login>
         <NavBar account={account} />
         <ModeSelect mode={mode} />
-        {/* {mode === "create" ? <UploadImage /> : <div>Buy</div>} */}
+        {mode.value === "create" ? <UploadImage /> : <div>Buy</div>}
       </main>
     </div>
   );
