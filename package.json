@@ -17,7 +17,7 @@
     "web3": "^4.3.0"
   },
   "scripts": {
-    "start": "ganache-cli -h 0.0.0.0 -p 8545 -l 3000000000 & react-scripts start",
+    "start": "ganache-cli -a & react-scripts start",
     "install": "sudo yarn global add ganache truffle",
     "build": "react-scripts build",
     "test": "react-scripts test",
