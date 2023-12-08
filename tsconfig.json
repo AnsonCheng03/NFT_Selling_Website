@@ -29,7 +29,6 @@
     "src/routes/components/ModeSelect.tsx",
     "src/routes/components/ViewNFT.tsx",
     "./src/routes/components/contractCode.tsx",
-    "./src/routes/components/View.tsx",
     "./src/routes/components/ShowNFT.tsx"
   ],
   "include": ["src", "./*.d.ts", "./*.config.ts"]
