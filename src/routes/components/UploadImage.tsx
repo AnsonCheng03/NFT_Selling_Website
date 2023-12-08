@@ -5,9 +5,8 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import Web3 from "web3";
 import { contractCode } from "./contractCode";
-import { migrateCode } from "./migrateCode";
 
-export default component$(({ account, mode }: any) => {
+export default component$(({ account, mode, loading }: any) => {
   const inputFile = useSignal<any>();
   const files = useSignal<any>([]);
   const handleFileChange = $((event: any) => {
@@ -39,17 +38,6 @@ export default component$(({ account, mode }: any) => {
       await fs.writeFile(
         `contracts/ERC721Token${DateInSec}.sol`,
         contractCode(numberOfImages, DateInSec),
-        (err) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-        }
-      );
-
-      await fs.writeFile(
-        `migrations/2_ERC721Token${DateInSec}_migrations.js`,
-        migrateCode(DateInSec),
         (err) => {
           if (err) {
             console.log(err);
@@ -92,19 +80,22 @@ export default component$(({ account, mode }: any) => {
             console.log(err);
           }
         });
-        await fs.unlink(
-          `migrations/2_ERC721Token${DateInSec}_migrations.js`,
-          (err) => {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
       }
 
-      console.log("contract deployed");
+      console.log("contract compiled");
 
-      return `ERC721Token${DateInSec}`;
+      // get the compiled contract
+      const compiledContract = JSON.parse(
+        fs.readFileSync(`src/contracts/ERC721Token${DateInSec}.json`, "utf-8")
+      );
+
+      console.log(compiledContract);
+
+      return [
+        `ERC721Token${DateInSec}`,
+        compiledContract["abi"],
+        compiledContract["bytecode"],
+      ];
     }
   );
 
@@ -198,16 +189,50 @@ export default component$(({ account, mode }: any) => {
           <button
             class="submitButton"
             onClick$={async () => {
+              loading.value = true;
               try {
                 const currentTimeInSeconds = Math.floor(Date.now());
+                const contractDetails: any = {
+                  abi: "",
+                  byteCode: "",
+                };
                 const contract: any = {
                   name: "",
+                  address: "",
                   images: [],
                 };
-                contract.name = await generateContract(
-                  files.value.length,
-                  currentTimeInSeconds
+                [contract.name, contractDetails.abi, contractDetails.byteCode] =
+                  await generateContract(
+                    files.value.length,
+                    currentTimeInSeconds
+                  );
+
+                // Configuring the connection to an Ethereum node
+                const web3 = new Web3((window as any).ethereum);
+                (window as any).ethereum.enable();
+
+                // Using the signing account to deploy the contract
+                const createdContract = new web3.eth.Contract(
+                  contractDetails.abi
                 );
+                (createdContract as any).options.data =
+                  contractDetails.byteCode;
+                const deployTx = createdContract.deploy();
+                const deployedContract = await deployTx
+                  .send({
+                    from: Web3.utils.toChecksumAddress(account.value),
+                    gas: 5000000 as any,
+                  })
+                  .once("transactionHash", (txhash) => {
+                    console.log(`Mining deployment transaction ...`);
+                    console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+                  });
+                // The contract is now deployed on chain!
+                console.log(
+                  `Contract deployed at ${deployedContract.options.address}`
+                );
+                contract.address = deployedContract.options.address;
+
                 for (let i = 0; i < files.value.length; i++) {
                   const ipfsID = await pinFileToIPFS(files.value[i]);
                   contract.images.push(ipfsID);
@@ -217,14 +242,14 @@ export default component$(({ account, mode }: any) => {
 
                 await saveContractToJSON(contract);
 
-                window.alert("NFT contract created");
+                window.alert("NFT contract created at " + contract.address);
 
                 mode.value = "view";
               } catch (error) {
                 console.log(error);
-                window.alert(
-                  "Error creating NFT contract. Please check if your account is valid."
-                );
+                window.alert("Error creating NFT contract. ");
+              } finally {
+                loading.value = false;
               }
             }}
           >

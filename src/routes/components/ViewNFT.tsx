@@ -4,7 +4,7 @@ import * as fs from "fs";
 import { ShowNFT } from "./ShowNFT";
 import { server$ } from "@builder.io/qwik-city";
 
-export const View = component$(({ account }: any) => {
+export const View = component$(({ account, loading }: any) => {
   const nftList = useSignal<any>({});
 
   const getNFTList = server$(() => {
@@ -17,7 +17,6 @@ export const View = component$(({ account }: any) => {
   });
 
   const address = account.value && Web3.utils.toChecksumAddress(account.value);
-
   return (
     <div class="viewNFT">
       <h1>My Contract</h1>
@@ -31,6 +30,7 @@ export const View = component$(({ account }: any) => {
                 owned={true}
                 key={nft.name}
                 account={account}
+                loading={loading}
               />
             );
           })
@@ -51,6 +51,7 @@ export const View = component$(({ account }: any) => {
                       owned={false}
                       key={nft.name}
                       account={account}
+                      loading={loading}
                     />
                   );
                 })}
