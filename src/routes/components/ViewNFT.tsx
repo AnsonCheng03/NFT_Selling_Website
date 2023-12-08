@@ -5,14 +5,14 @@ import { ShowNFT } from "./ShowNFT";
 
 export const View = component$(({ account }: any) => {
   console.log(nftList);
-  const address = Web3.utils.toChecksumAddress(account.value);
+  const address = account.value && Web3.utils.toChecksumAddress(account.value);
 
   return (
     <div class="viewNFT">
       <h1>My Contract</h1>
       {
         // get all NFTs of key is my address from contract
-        nftList[address] &&
+        nftList[address]?.length > 0 &&
           nftList[address].map((nft: any) => {
             return (
               <ShowNFT

@@ -4,23 +4,23 @@ export const ConnectWalletButton = ({ account, mode = "login" }: any) => {
   const onPressConnect = $(async () => {
     try {
       if ((window as any)?.ethereum?.isMetaMask) {
-        // const accounts = await window.ethereum
-        //   .request({
-        //     method: "wallet_requestPermissions",
-        //     params: [
-        //       {
-        //         eth_accounts: {},
-        //       },
-        //     ],
-        //   })
-        //   .then(() =>
-        //     window.ethereum.request({
-        //       method: "eth_requestAccounts",
-        //     })
-        //   );
-        const accounts = await (window as any).ethereum.request({
-          method: "eth_requestAccounts",
-        });
+        const accounts = await window.ethereum
+          .request({
+            method: "wallet_requestPermissions",
+            params: [
+              {
+                eth_accounts: {},
+              },
+            ],
+          })
+          .then(() =>
+            window.ethereum.request({
+              method: "eth_requestAccounts",
+            })
+          );
+        // const accounts = await (window as any).ethereum.request({
+        //   method: "eth_requestAccounts",
+        // });
 
         account.value = accounts[0];
       } else window.alert("Please install MetaMask to use this dApp!");

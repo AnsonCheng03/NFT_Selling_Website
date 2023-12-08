@@ -125,11 +125,11 @@ export default component$(({ account, mode }: any) => {
             }
           }
         );
-        // await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
-        //   if (err) {
-        //     console.log(err);
-        //   }
-        // });
+        await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
       }
 
       console.log("contract deployed");
