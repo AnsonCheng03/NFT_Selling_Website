@@ -10,18 +10,21 @@
   ],
   "scripts": {
     "build": "qwik build",
-    "install": "sudo yarn global add ganache truffle",
     "build.client": "vite build",
     "build.preview": "vite build --ssr src/entry.preview.tsx",
+    "build.server": "vite build -c adapters/deno/vite.config.ts",
     "build.types": "tsc --incremental --noEmit",
     "deploy": "echo 'Run \"npm run qwik add\" to install a server adapter'",
     "dev": "vite --mode ssr",
     "dev.debug": "node --inspect-brk ./node_modules/vite/bin/vite.js --mode ssr --force",
     "fmt": "prettier --write .",
     "fmt.check": "prettier --check .",
+    "install": "sudo yarn global add ganache truffle",
     "lint": "eslint \"src/**/*.ts*\"",
     "preview": "qwik build preview && vite preview --open",
-    "start": "ganache-cli -a --account_keys_path keys.json & vite --open --mode ssr",
+    "serve": "deno run --allow-net --allow-read --allow-env server/entry.deno.js",
+    "start": "vite --open --mode ssr",
+    "start.bcserver": "ganache-cli -a --account_keys_path keys.json",
     "qwik": "qwik"
   },
   "devDependencies": {
@@ -43,6 +46,7 @@
     "@openzeppelin/contracts": "^5.0.0",
     "axios": "^1.6.2",
     "bigint-buffer": "^1.1.5",
+    "deno": "^0.1.1",
     "sharp": "^0.33.0",
     "vite-plugin-node-polyfills": "^0.17.0",
     "web3": "^4.3.0"

@@ -112,24 +112,24 @@ export default component$(({ account, mode }: any) => {
         throw error;
       } finally {
         // remove contract code file after compiling
-        await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
-          if (err) {
-            console.log(err);
-          }
-        });
-        await fs.unlink(
-          `migrations/2_ERC721Token${DateInSec}_migrations.js`,
-          (err) => {
-            if (err) {
-              console.log(err);
-            }
-          }
-        );
-        await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
-          if (err) {
-            console.log(err);
-          }
-        });
+        // await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        // });
+        // await fs.unlink(
+        //   `migrations/2_ERC721Token${DateInSec}_migrations.js`,
+        //   (err) => {
+        //     if (err) {
+        //       console.log(err);
+        //     }
+        //   }
+        // );
+        // await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        // });
       }
 
       console.log("contract deployed");
@@ -252,7 +252,9 @@ export default component$(({ account, mode }: any) => {
                 mode.value = "view";
               } catch (error) {
                 console.log(error);
-                window.alert("Error creating NFT contract");
+                window.alert(
+                  "Error creating NFT contract. Please check if your account is valid."
+                );
               }
             }}
           >
