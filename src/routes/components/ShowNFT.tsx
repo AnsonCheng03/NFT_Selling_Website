@@ -6,6 +6,7 @@ import { server$ } from "@builder.io/qwik-city";
 export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
   const AvailableImage = useSignal<any>([]);
   const tokenURIs = useSignal<any>([]);
+  const DisplayImage = useSignal<any>([[], []]);
 
   const getConfig = server$(async (nftName: string) => {
     const response = fs.readFileSync(`src/contracts/${nftName}.json`);
@@ -59,11 +60,14 @@ export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
     AvailableImage.value = nft.images.filter((image: any) => {
       return !tokenURIs.value.includes(image);
     });
+
+    DisplayImage.value = [tokenURIs.value, AvailableImage.value];
   });
+
   return (
     <div class="nft" key={nft.address}>
       <p>{nft.address}</p>
-      {[tokenURIs.value, AvailableImage.value].map(
+      {DisplayImage.value.map(
         (nftImage: any, index: any) =>
           nftImage.length > 0 && (
             <div class="nftImages" key={index}>
@@ -97,7 +101,6 @@ export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
                           window.alert(`Owner: ${owner}`);
                         } else {
                           // call mint function
-                          if (owned) return;
                           const mintRes = await contract.methods
                             .mint(image, {})
                             .send({
@@ -110,6 +113,10 @@ export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
                           // move image from Available to Sold
                           AvailableImage.value.splice(photoIndex, 1);
                           tokenURIs.value.push(image);
+                          DisplayImage.value = [
+                            tokenURIs.value,
+                            AvailableImage.value,
+                          ];
                         }
                       } catch (e) {
                         console.log(e);
