@@ -42,12 +42,13 @@ export default component$(({ account, mode }: any) => {
         contractCode(numberOfImages, DateInSec),
         (err) => {
           if (err) {
-            console.log(err);
+            // console.log(err);
             return;
           }
         }
       );
 
+<<<<<<< Updated upstream
       await fs.writeFile(
         `migrations/2_ERC721Token${DateInSec}_migrations.js`,
         migrateCode(DateInSec),
@@ -72,6 +73,9 @@ export default component$(({ account, mode }: any) => {
       );
 
       console.log("contract code file created");
+=======
+      // console.log("contract code file created");
+>>>>>>> Stashed changes
 
       try {
         await new Promise((resolve, reject) => {
@@ -93,25 +97,23 @@ export default component$(({ account, mode }: any) => {
             }
           );
 
-          migrate.stdout.on("data", (data) => {
-            console.log(`stdout: ${data}`);
-          });
+          // migrate.stdout.on("data", (data) => {
+          //   console.log(`stdout: ${data}`);
+          // });
 
           migrate.on("close", (code) => {
             if (code === 0) {
               migrate.unref();
               resolve("done");
             } else {
-              console.log(`Process exited with code: ${code}`);
+              // console.log(`Process exited with code: ${code}`);
               reject(`Process exited with code: ${code}`);
             }
           });
         });
       } catch (error) {
-        console.log("truffle migrate error", error);
-        throw error;
-      } finally {
         // remove contract code file after compiling
+<<<<<<< Updated upstream
         // await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
         //   if (err) {
         //     console.log(err);
@@ -135,6 +137,30 @@ export default component$(({ account, mode }: any) => {
       console.log("contract deployed");
 
       return `ERC721Token${DateInSec}`;
+=======
+        await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
+          if (err) {
+            // console.log(err);
+          }
+        });
+        throw error;
+      }
+
+      // console.log("contract compiled");
+
+      // get the compiled contract
+      const compiledContract = JSON.parse(
+        fs.readFileSync(`src/contracts/ERC721Token${DateInSec}.json`, "utf-8")
+      );
+
+      // console.log(compiledContract);
+
+      return [
+        `ERC721Token${DateInSec}`,
+        compiledContract["abi"],
+        compiledContract["bytecode"],
+      ];
+>>>>>>> Stashed changes
     }
   );
 
@@ -164,15 +190,14 @@ export default component$(({ account, mode }: any) => {
       // console.log(res.data);
       return res.data.IpfsHash;
     } catch (error) {
-      console.log(error);
-      throw error;
-    } finally {
       inputFile.value = null;
+      // console.log(error);
+      throw error;
     }
   });
 
   const saveContractToJSON = server$((contract: any) => {
-    console.log("saveContractToJSON", contract);
+    // console.log("saveContractToJSON", contract);
 
     const contracts: any = JSON.parse(
       fs.readFileSync("src/contracts.json", "utf-8")
@@ -186,10 +211,10 @@ export default component$(({ account, mode }: any) => {
     // Write contracts to json file
     fs.writeFile("src/contracts.json", JSON.stringify(contracts), (err) => {
       if (err) {
-        console.log(err);
+        // console.log(err);
         return;
       }
-      console.log("contracts.json updated");
+      // console.log("contracts.json updated");
     });
   });
 
@@ -238,10 +263,29 @@ export default component$(({ account, mode }: any) => {
                   files.value.length,
                   currentTimeInSeconds
                 );
+<<<<<<< Updated upstream
+=======
+                (createdContract as any).options.data =
+                  contractDetails.byteCode;
+                const deployTx = createdContract.deploy();
+                const deployedContract = await deployTx
+                  .send({
+                    from: Web3.utils.toChecksumAddress(account.value),
+                    gas: 5000000 as any,
+                  })
+                  .once("transactionHash", (txhash) => {
+                    // console.log(`Mining deployment transaction ...`);
+                    console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+                    window.alert("Deploying NFT contract. Log: " + txhash);
+                  });
+
+                contract.address = deployedContract.options.address;
+
+>>>>>>> Stashed changes
                 for (let i = 0; i < files.value.length; i++) {
                   const ipfsID = await pinFileToIPFS(files.value[i]);
                   contract.images.push(ipfsID);
-                  console.log(ipfsID);
+                  // console.log(ipfsID);
                 }
                 files.value = [];
 
@@ -251,10 +295,17 @@ export default component$(({ account, mode }: any) => {
 
                 mode.value = "view";
               } catch (error) {
+<<<<<<< Updated upstream
                 console.log(error);
                 window.alert(
                   "Error creating NFT contract. Please check if your account is valid."
                 );
+=======
+                // console.log(error);
+                window.alert("Error creating NFT contract. ");
+              } finally {
+                loading.value = false;
+>>>>>>> Stashed changes
               }
             }}
           >

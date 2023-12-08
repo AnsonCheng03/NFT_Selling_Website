@@ -44,7 +44,7 @@ export const View = component$(({ account }: any) => {
               <div key={key}>
                 {/* <h4>{key}</h4> */}
                 {(nftList.value as any)[key].map((nft: any) => {
-                  console.log(nft);
+                  // console.log(nft);
                   return (
                     <ShowNFT
                       nft={nft}

@@ -24,7 +24,7 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
       const contract = new web3.eth.Contract(contractABI, contractAddress);
       return contract;
     } catch (e) {
-      console.log(e);
+      // console.log(e);
       return null;
     }
   });
@@ -42,7 +42,7 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
         gas: 500000,
       })
     );
-    console.log(totalAvailable, totalRemaining);
+    // console.log(totalAvailable, totalRemaining);
     const sold = totalAvailable - totalRemaining;
 
     // search for tokenURI in contract, use promise.all to get all tokenURIs
@@ -101,12 +101,31 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
                             .send({
                               from: Web3.utils.toChecksumAddress(account.value),
                               gas: 500000,
+                            })
+                            .once("transactionHash", (txhash: any) => {
+                              // console.log(`Mining deployment transaction ...`);
+                              console.log(
+                                `https://sepolia.etherscan.io/tx/${txhash}`
+                              );
+                              window.alert("NFT minted! Log: " + txhash);
                             });
+<<<<<<< Updated upstream
                           console.log(mintRes);
                           window.alert("NFT minted");
+=======
+                          // console.log(mintRes);
+
+                          // move image from Available to Sold
+                          AvailableImage.value.splice(photoIndex, 1);
+                          tokenURIs.value.push(image);
+                          DisplayImage.value = [
+                            tokenURIs.value,
+                            AvailableImage.value,
+                          ];
+>>>>>>> Stashed changes
                         }
                       } catch (e) {
-                        console.log(e);
+                        // console.log(e);
                         window.alert(
                           "Error minting NFT. Please check if you are in the whitelist."
                         );
@@ -133,11 +152,15 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
                 .send({
                   from: Web3.utils.toChecksumAddress(account.value),
                   gas: 500000,
+                })
+                .once("transactionHash", (txhash: any) => {
+                  // console.log(`Mining deployment transaction ...`);
+                  console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+                  window.alert("Address added to whitelist. Log: " + txhash);
                 });
-              console.log(whiteListRes);
-              window.alert("Address added to whitelist");
+              // console.log(whiteListRes);
             } catch (e) {
-              console.log(e);
+              // console.log(e);
               window.alert("Error adding address to whitelist");
             }
           }}
