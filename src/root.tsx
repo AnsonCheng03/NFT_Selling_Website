@@ -3,9 +3,7 @@ import {
   QwikCityProvider,
   RouterOutlet,
   ServiceWorkerRegister,
-  server$,
 } from "@builder.io/qwik-city";
-import { exec } from "child_process";
 import { RouterHead } from "./components/router-head/router-head";
 
 import "./global.css";

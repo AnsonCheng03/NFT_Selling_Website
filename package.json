@@ -21,7 +21,7 @@
     "fmt.check": "prettier --check .",
     "lint": "eslint \"src/**/*.ts*\"",
     "preview": "qwik build preview && vite preview --open",
-    "start": "ganache-cli -a & vite --open --mode ssr",
+    "start": "ganache-cli -a --account_keys_path keys.json & vite --open --mode ssr",
     "qwik": "qwik"
   },
   "devDependencies": {
@@ -44,6 +44,7 @@
     "axios": "^1.6.2",
     "bigint-buffer": "^1.1.5",
     "sharp": "^0.33.0",
+    "vite-plugin-node-polyfills": "^0.17.0",
     "web3": "^4.3.0"
   }
 }

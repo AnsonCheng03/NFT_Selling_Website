@@ -1,4 +1,4 @@
-import { component$, useSignal } from "@builder.io/qwik";
+import { $, component$, useSignal } from "@builder.io/qwik";
 import { server$, type DocumentHead } from "@builder.io/qwik-city";
 import { ConnectWalletButton } from "./components/ConnectWalletButton";
 import UploadImage from "./components/UploadImage";
@@ -15,7 +15,6 @@ export default component$(() => {
     fs.writeFile("src/contracts.json", JSON.stringify({}), (err) => {
       if (err) {
         console.log(err);
-        return;
       }
       console.log("contracts.json updated");
     });
@@ -29,14 +28,40 @@ export default component$(() => {
     });
   });
 
+  const getAccountFromServer = server$(() => {
+    const keys = fs.readFileSync("keys.json", "utf8");
+    const keysJSON = JSON.parse(keys);
+    return keysJSON;
+  });
+
+  const getAllAccount = $(async () => {
+    const keys = await getAccountFromServer();
+    if (keys["private_keys"]) {
+      // format: key: address, value: private key
+      const keys_in_string = Object.keys(keys["private_keys"]).reduce(
+        (acc, cur) => {
+          return acc + cur + ": " + keys["private_keys"][cur] + "\n\n";
+        },
+        ""
+      );
+
+      console.log(keys_in_string);
+    }
+  });
+
   return (
     <div class="App">
       <main class="main">
         <login class={account.value === "" ? "login" : "login done"}>
           <ConnectWalletButton account={account} />
-          <button class="resetAll" onClick$={resetAll}>
-            Reset All (For Demo Proposes)
-          </button>
+          <div class="developmentTools">
+            <button class="resetAll" onClick$={() => resetAll()}>
+              Reset All (For Demo)
+            </button>
+            <button class="resetAll" onClick$={getAllAccount}>
+              Get All Account in Console (For Demo)
+            </button>
+          </div>
         </login>
         <NavBar account={account} />
         <ModeSelect mode={mode} />

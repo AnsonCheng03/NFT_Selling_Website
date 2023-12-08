@@ -183,7 +183,13 @@ body {
   transform: scale(1.1);
 }
 
-.login .resetAll {
+.login .developmentTools {
+  position: absolute;
+  bottom: 0;
+  left: 0;
+}
+
+.login .developmentTools button {
   display: inline-block;
   border: 0;
   margin: 10px;
@@ -194,7 +200,4 @@ body {
   cursor: pointer;
   box-shadow: 0 2px 5px rgba(0, 0, 0, 0.3);
   transition: 0.5s ease all;
-  position: absolute;
-  bottom: 0;
-  left: 0;
 }

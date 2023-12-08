@@ -12,8 +12,8 @@ export const View = component$(({ account }: any) => {
       <h1>My Contract</h1>
       {
         // get all NFTs of key is my address from contract
-        nftList[address]?.length > 0 &&
-          nftList[address].map((nft: any) => {
+        (nftList as any)[address]?.length > 0 &&
+          (nftList as any)[address].map((nft: any) => {
             return (
               <ShowNFT
                 nft={nft}
@@ -32,7 +32,7 @@ export const View = component$(({ account }: any) => {
             return (
               <div key={key}>
                 {/* <h4>{key}</h4> */}
-                {nftList[key].map((nft: any) => {
+                {(nftList as any)[key].map((nft: any) => {
                   console.log(nft);
                   return (
                     <ShowNFT

@@ -4,7 +4,7 @@ export const ConnectWalletButton = ({ account, mode = "login" }: any) => {
   const onPressConnect = $(async () => {
     try {
       if ((window as any)?.ethereum?.isMetaMask) {
-        const accounts = await window.ethereum
+        const accounts = await (window as any).ethereum
           .request({
             method: "wallet_requestPermissions",
             params: [
@@ -14,7 +14,7 @@ export const ConnectWalletButton = ({ account, mode = "login" }: any) => {
             ],
           })
           .then(() =>
-            window.ethereum.request({
+            (window as any).ethereum.request({
               method: "eth_requestAccounts",
             })
           );
