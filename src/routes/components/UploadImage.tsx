@@ -6,7 +6,6 @@ import * as fs from "fs";
 import Web3 from "web3";
 import { contractCode } from "./contractCode";
 import { migrateCode } from "./migrateCode";
-import { truffleConfig } from "./truffleConfig";
 
 export default component$(({ account, mode }: any) => {
   const inputFile = useSignal<any>();
@@ -59,39 +58,15 @@ export default component$(({ account, mode }: any) => {
         }
       );
 
-      const address = Web3.utils.toChecksumAddress(account.value);
-      await fs.writeFile(
-        `truffle-config${DateInSec}.js`,
-        truffleConfig(address.toLowerCase()),
-        (err) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-        }
-      );
-
       console.log("contract code file created");
 
       try {
         await new Promise((resolve, reject) => {
-          // const migrate = spawn("truffle", ["migrate"], {
-          //  --network ganache
-          const migrate = spawn(
-            "truffle",
-            [
-              "migrate",
-              "--config",
-              `truffle-config${DateInSec}.js`,
-              "--network",
-              "develop",
-            ],
-            {
-              cwd: process.cwd(),
-              shell: true,
-              detached: true,
-            }
-          );
+          const migrate = spawn("truffle", ["compile"], {
+            cwd: process.cwd(),
+            shell: true,
+            detached: true,
+          });
 
           migrate.stdout.on("data", (data) => {
             console.log(`stdout: ${data}`);
@@ -112,24 +87,19 @@ export default component$(({ account, mode }: any) => {
         throw error;
       } finally {
         // remove contract code file after compiling
-        // await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
-        //   if (err) {
-        //     console.log(err);
-        //   }
-        // });
-        // await fs.unlink(
-        //   `migrations/2_ERC721Token${DateInSec}_migrations.js`,
-        //   (err) => {
-        //     if (err) {
-        //       console.log(err);
-        //     }
-        //   }
-        // );
-        // await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
-        //   if (err) {
-        //     console.log(err);
-        //   }
-        // });
+        await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
+          if (err) {
+            console.log(err);
+          }
+        });
+        await fs.unlink(
+          `migrations/2_ERC721Token${DateInSec}_migrations.js`,
+          (err) => {
+            if (err) {
+              console.log(err);
+            }
+          }
+        );
       }
 
       console.log("contract deployed");
