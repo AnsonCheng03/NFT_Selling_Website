@@ -21,7 +21,7 @@ export default component$(() => {
   const resetAll = server$(() => {
     fs.writeFile("src/contracts.json", JSON.stringify({}), (err) => {
       if (err) {
-        // console.log(err);
+        console.log(err);
       }
       // console.log("contracts.json updated");
     });

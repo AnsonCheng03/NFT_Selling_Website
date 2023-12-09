@@ -35,18 +35,10 @@ export default component$(({ account, mode, loading }: any) => {
       DateInSec: number = Date.now() / 1000
     ) => {
       // write contract code to file
-      await fs.writeFile(
+      await fs.writeFileSync(
         `contracts/ERC721Token${DateInSec}.sol`,
-        contractCode(numberOfImages, DateInSec),
-        (err) => {
-          if (err) {
-            // console.log(err);
-            return;
-          }
-        }
+        contractCode(numberOfImages, DateInSec)
       );
-
-      // console.log("contract code file created");
 
       try {
         await new Promise((resolve, reject) => {
@@ -65,20 +57,21 @@ export default component$(({ account, mode, loading }: any) => {
               migrate.unref();
               resolve("done");
             } else {
-              // console.log(`Process exited with code: ${code}`);
+              console.log(`Process exited with code: ${code}`);
               reject(`Process exited with code: ${code}`);
             }
           });
         });
       } catch (error) {
-        // console.log("truffle migrate error", error);
-        // remove contract code file after compiling
-        await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
-          if (err) {
-            // console.log(err);
-          }
-        });
+        console.log("truffle migrate error", error);
         throw error;
+      } finally {
+        // remove contract code file after compiling
+        // await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
+        //   if (err) {
+        //     console.log(err);
+        //   }
+        // });
       }
 
       // console.log("contract compiled");
@@ -124,7 +117,7 @@ export default component$(({ account, mode, loading }: any) => {
       // console.log(res.data);
       return res.data.IpfsHash;
     } catch (error) {
-      // console.log(error);
+      console.log(error);
       inputFile.value = null;
       throw error;
     }
@@ -145,7 +138,7 @@ export default component$(({ account, mode, loading }: any) => {
     // Write contracts to json file
     fs.writeFile("src/contracts.json", JSON.stringify(contracts), (err) => {
       if (err) {
-        // console.log(err);
+        console.log(err);
         return;
       }
       // console.log("contracts.json updated");
@@ -247,7 +240,7 @@ export default component$(({ account, mode, loading }: any) => {
 
                 mode.value = "view";
               } catch (error) {
-                // console.log(error);
+                console.log(error);
                 window.alert("Error creating NFT contract. ");
                 loading.value = false;
               }
