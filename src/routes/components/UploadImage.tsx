@@ -243,7 +243,7 @@ export default component$(({ account, mode, loading }: any) => {
 
                 await saveContractToJSON(contract);
 
-                window.alert("NFT contract created at " + contract.address);
+                // window.alert("NFT contract created at " + contract.address);
 
                 mode.value = "view";
               } catch (error) {

@@ -116,7 +116,7 @@ export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
                               );
                             });
                           // console.log(mintRes);
-                          window.alert("NFT minted");
+                          // window.alert("NFT minted");
 
                           // move image from Available to Sold
                           AvailableImage.value.splice(photoIndex, 1);
