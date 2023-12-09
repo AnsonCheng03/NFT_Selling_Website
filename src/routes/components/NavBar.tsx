@@ -12,7 +12,7 @@ export const NavBar = ({ account }: any) => {
   //   const web3 = new Web3(Web3.givenProvider);
   //   const ethBalance = await web3.eth.getBalance(account);
   //   balance = web3.utils.fromWei(ethBalance, "ether");
-  //   console.log(balance);
+    // console.log(balance);
   // };
   // getBalance();
   return (
