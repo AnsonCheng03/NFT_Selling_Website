@@ -25,7 +25,7 @@ export const ConnectWalletButton = ({ account, mode = "login" }: any) => {
         account.value = accounts[0];
       } else window.alert("Please install MetaMask to use this dApp!");
     } catch (error) {
-      console.log(error);
+      // console.log(error);
     }
   });
   const onPressLogout = $(async () => {

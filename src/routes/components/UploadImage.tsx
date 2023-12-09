@@ -40,13 +40,13 @@ export default component$(({ account, mode, loading }: any) => {
         contractCode(numberOfImages, DateInSec),
         (err) => {
           if (err) {
-            console.log(err);
+            // console.log(err);
             return;
           }
         }
       );
 
-      console.log("contract code file created");
+      // console.log("contract code file created");
 
       try {
         await new Promise((resolve, reject) => {
@@ -56,40 +56,39 @@ export default component$(({ account, mode, loading }: any) => {
             detached: true,
           });
 
-          migrate.stdout.on("data", (data) => {
-            console.log(`stdout: ${data}`);
-          });
+          // migrate.stdout.on("data", (data) => {
+          //   console.log(`stdout: ${data}`);
+          // });
 
           migrate.on("close", (code) => {
             if (code === 0) {
               migrate.unref();
               resolve("done");
             } else {
-              console.log(`Process exited with code: ${code}`);
+              // console.log(`Process exited with code: ${code}`);
               reject(`Process exited with code: ${code}`);
             }
           });
         });
       } catch (error) {
-        console.log("truffle migrate error", error);
-        throw error;
-      } finally {
+        // console.log("truffle migrate error", error);
         // remove contract code file after compiling
         await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
           if (err) {
-            console.log(err);
+            // console.log(err);
           }
         });
+        throw error;
       }
 
-      console.log("contract compiled");
+      // console.log("contract compiled");
 
       // get the compiled contract
       const compiledContract = JSON.parse(
         fs.readFileSync(`src/contracts/ERC721Token${DateInSec}.json`, "utf-8")
       );
 
-      console.log(compiledContract);
+      // console.log(compiledContract);
 
       return [
         `ERC721Token${DateInSec}`,
@@ -125,15 +124,14 @@ export default component$(({ account, mode, loading }: any) => {
       // console.log(res.data);
       return res.data.IpfsHash;
     } catch (error) {
-      console.log(error);
-      throw error;
-    } finally {
+      // console.log(error);
       inputFile.value = null;
+      throw error;
     }
   });
 
   const saveContractToJSON = server$((contract: any) => {
-    console.log("saveContractToJSON", contract);
+    // console.log("saveContractToJSON", contract);
 
     const contracts: any = JSON.parse(
       fs.readFileSync("src/contracts.json", "utf-8")
@@ -147,10 +145,10 @@ export default component$(({ account, mode, loading }: any) => {
     // Write contracts to json file
     fs.writeFile("src/contracts.json", JSON.stringify(contracts), (err) => {
       if (err) {
-        console.log(err);
+        // console.log(err);
         return;
       }
-      console.log("contracts.json updated");
+      // console.log("contracts.json updated");
     });
   });
 
@@ -224,19 +222,22 @@ export default component$(({ account, mode, loading }: any) => {
                     gas: 5000000 as any,
                   })
                   .once("transactionHash", (txhash) => {
-                    console.log(`Mining deployment transaction ...`);
+                    // console.log(`Mining deployment transaction ...`);
                     console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
+                    window.alert(
+                      `Mining deployment transaction ...\nhttps://sepolia.etherscan.io/tx/${txhash}`
+                    );
                   });
                 // The contract is now deployed on chain!
-                console.log(
-                  `Contract deployed at ${deployedContract.options.address}`
-                );
+                // console.log(
+                //   `Contract deployed at ${deployedContract.options.address}`
+                // );
                 contract.address = deployedContract.options.address;
 
                 for (let i = 0; i < files.value.length; i++) {
                   const ipfsID = await pinFileToIPFS(files.value[i]);
                   contract.images.push(ipfsID);
-                  console.log(ipfsID);
+                  // console.log(ipfsID);
                 }
                 files.value = [];
 
@@ -246,9 +247,8 @@ export default component$(({ account, mode, loading }: any) => {
 
                 mode.value = "view";
               } catch (error) {
-                console.log(error);
+                // console.log(error);
                 window.alert("Error creating NFT contract. ");
-              } finally {
                 loading.value = false;
               }
             }}

@@ -26,7 +26,7 @@ const { router, notFound, staticFile } = createQwikCity({
 const port = Number(Deno.env.get("PORT") ?? 3009);
 
 /* eslint-disable */
-console.log(`Server starter: http://localhost:${port}/app/`);
+// console.log(`Server starter: http://localhost:${port}/app/`);
 
 serve(
   async (request: Request, conn: any) => {
@@ -44,7 +44,7 @@ serve(
     // Path not found
     return notFound(request);
   },
-  { port },
+  { port }
 );
 
 declare const Deno: any;
