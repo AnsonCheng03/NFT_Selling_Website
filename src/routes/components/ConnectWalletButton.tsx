@@ -4,6 +4,11 @@ export const ConnectWalletButton = ({ account, mode = "login" }: any) => {
   const onPressConnect = $(async () => {
     try {
       if ((window as any)?.ethereum?.isMetaMask) {
+        if (!(window as any)?.ethereum?.isMetaMask) {
+          window.alert(
+            "You are not using MetaMask, use it to have a better experience!"
+          );
+        }
         const accounts = await (window as any).ethereum
           .request({
             method: "wallet_requestPermissions",
