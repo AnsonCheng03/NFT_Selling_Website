@@ -20,9 +20,9 @@ export default component$(({ account, mode, loading }: any) => {
       return;
     }
 
-    // check file size < 1MB
-    if (file.size > 1048576) {
-      window.alert("File size must be less than 1MB");
+    // check file size < 5MB
+    if (file.size > 5 * 1024 * 1024) {
+      window.alert("File size must be less than 5MB");
       return;
     }
 
@@ -239,6 +239,7 @@ export default component$(({ account, mode, loading }: any) => {
                 // window.alert("NFT contract created at " + contract.address);
 
                 mode.value = "view";
+                loading.value = false;
               } catch (error) {
                 console.log(error);
                 window.alert("Error creating NFT contract. ");

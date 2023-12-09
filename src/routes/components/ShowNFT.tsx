@@ -125,6 +125,7 @@ export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
                             tokenURIs.value,
                             AvailableImage.value,
                           ];
+                          loading.value = false;
                         }
                       } catch (e) {
                         // console.log(e);
@@ -165,6 +166,7 @@ export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
                   );
                 });
               // console.log(whiteListRes);
+              loading.value = false;
             } catch (e) {
               // console.log(e);
               window.alert("Error adding address to whitelist");
