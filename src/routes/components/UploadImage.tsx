@@ -5,10 +5,8 @@ import { spawn } from "child_process";
 import * as fs from "fs";
 import Web3 from "web3";
 import { contractCode } from "./contractCode";
-import { migrateCode } from "./migrateCode";
-import { truffleConfig } from "./truffleConfig";
 
-export default component$(({ account, mode }: any) => {
+export default component$(({ account, mode, loading }: any) => {
   const inputFile = useSignal<any>();
   const files = useSignal<any>([]);
   const handleFileChange = $((event: any) => {
@@ -48,54 +46,15 @@ export default component$(({ account, mode }: any) => {
         }
       );
 
-<<<<<<< Updated upstream
-      await fs.writeFile(
-        `migrations/2_ERC721Token${DateInSec}_migrations.js`,
-        migrateCode(DateInSec),
-        (err) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-        }
-      );
-
-      const address = Web3.utils.toChecksumAddress(account.value);
-      await fs.writeFile(
-        `truffle-config${DateInSec}.js`,
-        truffleConfig(address.toLowerCase()),
-        (err) => {
-          if (err) {
-            console.log(err);
-            return;
-          }
-        }
-      );
-
-      console.log("contract code file created");
-=======
       // console.log("contract code file created");
->>>>>>> Stashed changes
 
       try {
         await new Promise((resolve, reject) => {
-          // const migrate = spawn("truffle", ["migrate"], {
-          //  --network ganache
-          const migrate = spawn(
-            "truffle",
-            [
-              "migrate",
-              "--config",
-              `truffle-config${DateInSec}.js`,
-              "--network",
-              "develop",
-            ],
-            {
-              cwd: process.cwd(),
-              shell: true,
-              detached: true,
-            }
-          );
+          const migrate = spawn("truffle", ["compile"], {
+            cwd: process.cwd(),
+            shell: true,
+            detached: true,
+          });
 
           // migrate.stdout.on("data", (data) => {
           //   console.log(`stdout: ${data}`);
@@ -112,32 +71,8 @@ export default component$(({ account, mode }: any) => {
           });
         });
       } catch (error) {
+        // console.log("truffle migrate error", error);
         // remove contract code file after compiling
-<<<<<<< Updated upstream
-        // await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
-        //   if (err) {
-        //     console.log(err);
-        //   }
-        // });
-        // await fs.unlink(
-        //   `migrations/2_ERC721Token${DateInSec}_migrations.js`,
-        //   (err) => {
-        //     if (err) {
-        //       console.log(err);
-        //     }
-        //   }
-        // );
-        // await fs.unlink(`truffle-config${DateInSec}.js`, (err) => {
-        //   if (err) {
-        //     console.log(err);
-        //   }
-        // });
-      }
-
-      console.log("contract deployed");
-
-      return `ERC721Token${DateInSec}`;
-=======
         await fs.unlink(`contracts/ERC721Token${DateInSec}.sol`, (err) => {
           if (err) {
             // console.log(err);
@@ -160,7 +95,6 @@ export default component$(({ account, mode }: any) => {
         compiledContract["abi"],
         compiledContract["bytecode"],
       ];
->>>>>>> Stashed changes
     }
   );
 
@@ -190,8 +124,8 @@ export default component$(({ account, mode }: any) => {
       // console.log(res.data);
       return res.data.IpfsHash;
     } catch (error) {
-      inputFile.value = null;
       // console.log(error);
+      inputFile.value = null;
       throw error;
     }
   });
@@ -253,18 +187,32 @@ export default component$(({ account, mode }: any) => {
           <button
             class="submitButton"
             onClick$={async () => {
+              loading.value = true;
               try {
                 const currentTimeInSeconds = Math.floor(Date.now());
+                const contractDetails: any = {
+                  abi: "",
+                  byteCode: "",
+                };
                 const contract: any = {
                   name: "",
+                  address: "",
                   images: [],
                 };
-                contract.name = await generateContract(
-                  files.value.length,
-                  currentTimeInSeconds
+                [contract.name, contractDetails.abi, contractDetails.byteCode] =
+                  await generateContract(
+                    files.value.length,
+                    currentTimeInSeconds
+                  );
+
+                // Configuring the connection to an Ethereum node
+                const web3 = new Web3((window as any).ethereum);
+                (window as any).ethereum.enable();
+
+                // Using the signing account to deploy the contract
+                const createdContract = new web3.eth.Contract(
+                  contractDetails.abi
                 );
-<<<<<<< Updated upstream
-=======
                 (createdContract as any).options.data =
                   contractDetails.byteCode;
                 const deployTx = createdContract.deploy();
@@ -276,12 +224,16 @@ export default component$(({ account, mode }: any) => {
                   .once("transactionHash", (txhash) => {
                     // console.log(`Mining deployment transaction ...`);
                     console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
-                    window.alert("Deploying NFT contract. Log: " + txhash);
+                    window.alert(
+                      `Mining deployment transaction ...\nhttps://sepolia.etherscan.io/tx/${txhash}`
+                    );
                   });
-
+                // The contract is now deployed on chain!
+                // console.log(
+                //   `Contract deployed at ${deployedContract.options.address}`
+                // );
                 contract.address = deployedContract.options.address;
 
->>>>>>> Stashed changes
                 for (let i = 0; i < files.value.length; i++) {
                   const ipfsID = await pinFileToIPFS(files.value[i]);
                   contract.images.push(ipfsID);
@@ -291,21 +243,13 @@ export default component$(({ account, mode }: any) => {
 
                 await saveContractToJSON(contract);
 
-                window.alert("NFT contract created");
+                // window.alert("NFT contract created at " + contract.address);
 
                 mode.value = "view";
               } catch (error) {
-<<<<<<< Updated upstream
-                console.log(error);
-                window.alert(
-                  "Error creating NFT contract. Please check if your account is valid."
-                );
-=======
                 // console.log(error);
                 window.alert("Error creating NFT contract. ");
-              } finally {
                 loading.value = false;
->>>>>>> Stashed changes
               }
             }}
           >

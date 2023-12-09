@@ -7,16 +7,23 @@ import { ModeSelect } from "./components/ModeSelect";
 import { View } from "./components/ViewNFT";
 import * as fs from "fs";
 
+const Loading = () => (
+  <div class="loadingContainer">
+    <div class="loading" />
+  </div>
+);
+
 export default component$(() => {
   const account = useSignal("");
   const mode = useSignal("create");
+  const loading = useSignal(false);
 
   const resetAll = server$(() => {
     fs.writeFile("src/contracts.json", JSON.stringify({}), (err) => {
       if (err) {
-        // console.log;
+        // console.log(err);
       }
-      // console.log(contracts.json updated");
+      // console.log("contracts.json updated");
     });
 
     // remove all files in src/contracts
@@ -28,27 +35,6 @@ export default component$(() => {
     });
   });
 
-  const getAccountFromServer = server$(() => {
-    const keys = fs.readFileSync("keys.json", "utf8");
-    const keysJSON = JSON.parse(keys);
-    return keysJSON;
-  });
-
-  const getAllAccount = $(async () => {
-    const keys = await getAccountFromServer();
-    if (keys["private_keys"]) {
-      // format: key: address, value: private key
-      const keys_in_string = Object.keys(keys["private_keys"]).reduce(
-        (acc, cur) => {
-          return acc + cur + ": " + keys["private_keys"][cur] + "\n\n";
-        },
-        ""
-      );
-
-      console.log(keys_in_string);
-    }
-  });
-
   return (
     <div class="App">
       <main class="main">
@@ -58,25 +44,23 @@ export default component$(() => {
             <button class="resetAll" onClick$={() => resetAll()}>
               Reset All (For Demo)
             </button>
-            <button class="resetAll" onClick$={getAllAccount}>
-              Get All Account in Console (For Demo)
-            </button>
           </div>
         </login>
         <NavBar account={account} />
         <ModeSelect mode={mode} />
         {account.value && mode.value === "create" ? (
-          <UploadImage account={account} mode={mode} />
+          <UploadImage account={account} mode={mode} loading={loading} />
         ) : (
-          <View account={account} />
+          <View account={account} loading={loading} />
         )}
+        {loading.value && <Loading />}
       </main>
     </div>
   );
 });
 
 export const head: DocumentHead = {
-  title: "Welcome to Qwik",
+  title: "CSCI2730",
   meta: [
     {
       name: "description",

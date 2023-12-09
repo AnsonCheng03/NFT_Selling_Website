@@ -3,9 +3,10 @@ import Web3 from "web3";
 import * as fs from "fs";
 import { server$ } from "@builder.io/qwik-city";
 
-export const ShowNFT = component$(({ nft, owned, account }: any) => {
+export const ShowNFT = component$(({ nft, owned, account, loading }: any) => {
   const AvailableImage = useSignal<any>([]);
   const tokenURIs = useSignal<any>([]);
+  const DisplayImage = useSignal<any>([[], []]);
 
   const getConfig = server$(async (nftName: string) => {
     const response = fs.readFileSync(`src/contracts/${nftName}.json`);
@@ -13,15 +14,14 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
     return configuration;
   });
 
-  const getContract = $(async (nftName: string) => {
+  const getContract = $(async (nftName: string, nftAddress: string) => {
     try {
       const configuration = await getConfig(nftName);
-      const networkID = Object.keys(configuration?.networks)[0];
-      const contractAddress = configuration?.networks[networkID]?.address;
       const contractABI = configuration?.abi;
-      const web3 = new Web3("http://127.0.0.1:8545");
+      const web3 = new Web3((window as any).ethereum);
+      (window as any).ethereum.enable();
 
-      const contract = new web3.eth.Contract(contractABI, contractAddress);
+      const contract = new web3.eth.Contract(contractABI, nftAddress);
       return contract;
     } catch (e) {
       // console.log(e);
@@ -35,7 +35,7 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
     track(() => account.value);
 
     if (!account.value) return;
-    const contract: any = await getContract(nft.name);
+    const contract: any = await getContract(nft.name, nft.address);
     const totalRemaining = parseInt(
       await contract?.methods.checkRemainingSupply().call({
         from: Web3.utils.toChecksumAddress(account.value),
@@ -60,12 +60,14 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
     AvailableImage.value = nft.images.filter((image: any) => {
       return !tokenURIs.value.includes(image);
     });
+
+    DisplayImage.value = [tokenURIs.value, AvailableImage.value];
   });
 
   return (
-    <div class="nft" key={nft.name}>
-      <p>{nft.name}</p>
-      {[tokenURIs.value, AvailableImage.value].map(
+    <div class="nft" key={nft.address}>
+      <p>{nft.address}</p>
+      {DisplayImage.value.map(
         (nftImage: any, index: any) =>
           nftImage.length > 0 && (
             <div class="nftImages" key={index}>
@@ -81,8 +83,12 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
                     height={50}
                     key={image}
                     onClick$={async () => {
+                      loading.value = true;
                       try {
-                        const contract: any = await getContract(nft.name);
+                        const contract: any = await getContract(
+                          nft.name,
+                          nft.address
+                        );
 
                         if (index === 0) {
                           // announce owner
@@ -95,25 +101,22 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
                           window.alert(`Owner: ${owner}`);
                         } else {
                           // call mint function
-                          if (owned) return;
-                          const mintRes = await contract.methods
+                          await contract.methods
                             .mint(image, {})
                             .send({
                               from: Web3.utils.toChecksumAddress(account.value),
                               gas: 500000,
                             })
                             .once("transactionHash", (txhash: any) => {
-                              // console.log(`Mining deployment transaction ...`);
                               console.log(
                                 `https://sepolia.etherscan.io/tx/${txhash}`
                               );
-                              window.alert("NFT minted! Log: " + txhash);
+                              window.alert(
+                                `Mining mint transaction ...\nhttps://sepolia.etherscan.io/tx/${txhash}`
+                              );
                             });
-<<<<<<< Updated upstream
-                          console.log(mintRes);
-                          window.alert("NFT minted");
-=======
                           // console.log(mintRes);
+                          // window.alert("NFT minted");
 
                           // move image from Available to Sold
                           AvailableImage.value.splice(photoIndex, 1);
@@ -122,13 +125,14 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
                             tokenURIs.value,
                             AvailableImage.value,
                           ];
->>>>>>> Stashed changes
                         }
                       } catch (e) {
                         // console.log(e);
                         window.alert(
                           "Error minting NFT. Please check if you are in the whitelist."
                         );
+                      } finally {
+                        loading.value = false;
                       }
                     }}
                   />
@@ -141,11 +145,12 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
         <button
           class="mintButton"
           onClick$={async () => {
+            loading.value = true;
             try {
               // prompt for address
               const address = prompt("Enter address to add to whitelist");
               // add address to whitelist
-              const contract: any = await getContract(nft.name);
+              const contract: any = await getContract(nft.name, nft.address);
 
               const whiteListRes = await contract.methods
                 .whitelist(address, 1, {})
@@ -154,14 +159,16 @@ export const ShowNFT = component$(({ nft, owned, account }: any) => {
                   gas: 500000,
                 })
                 .once("transactionHash", (txhash: any) => {
-                  // console.log(`Mining deployment transaction ...`);
                   console.log(`https://sepolia.etherscan.io/tx/${txhash}`);
-                  window.alert("Address added to whitelist. Log: " + txhash);
+                  window.alert(
+                    `Mining whitelist transaction ...\nhttps://sepolia.etherscan.io/tx/${txhash}`
+                  );
                 });
               // console.log(whiteListRes);
             } catch (e) {
               // console.log(e);
               window.alert("Error adding address to whitelist");
+              loading.value = false;
             }
           }}
         >
